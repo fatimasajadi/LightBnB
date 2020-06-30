@@ -1,9 +1,4 @@
-const { Pool } = require('pg')
-const pool = new Pool({
-  user: 'vagrant',
-  password: '123',
-  database: 'lightbnb'
-});
+const db = require('../db');
 
 const properties = require('./json/properties.json');
 const users = require('./json/users.json');
@@ -18,7 +13,7 @@ const users = require('./json/users.json');
 const getUserWithEmail = function(email) {
 
   const query = `SELECT * FROM users WHERE email=$1`;
-  return pool.query(query, [email])
+  return db.query(query, [email])
     .then(res => res.rows[0])
 
   .catch(err => console.error(err));
@@ -33,7 +28,7 @@ exports.getUserWithEmail = getUserWithEmail;
 const getUserWithId = function(id) {
 
   const query = `SELECT * FROM users WHERE id = $1`;
-  return pool.query(query, [id])
+  return db.query(query, [id])
     .then(res => res.rows[0])
     .catch(err => console.error(err));
 
@@ -48,7 +43,7 @@ exports.getUserWithId = getUserWithId;
  */
 const addUser = function(user) {
   const query = `INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *`;
-  return pool.query(query, [user.name, user.email, user.password])
+  return db.query(query, [user.name, user.email, user.password])
     .then(res => res.rows[0])
     .catch(err => console.error(err));
 }
@@ -71,7 +66,7 @@ const getAllReservations = function(guest_id, limit = 10) {
   GROUP BY properties.id, reservations.id
   ORDER BY reservations.start_date
   LIMIT ${limit}`;
-  return pool.query(query, [guest_id])
+  return db.query(query, [guest_id])
     .then(res => res.rows[0])
     .catch(err => console.error(err));
 
@@ -133,7 +128,7 @@ const getAllProperties = function(options, limit = 10) {
   console.log('queryString: ', queryString, 'queryParams', queryParams);
 
   // 6 return the promise
-  return pool.query(queryString, queryParams)
+  return db.query(queryString, queryParams)
     .then(res => {
       return res.rows;
     });
